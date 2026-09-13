@@ -1,156 +1,195 @@
 # 🇮🇳 Indian Stock Trading AI
 
-> **An end-to-end machine-learning research system for Indian equities
-> that combines market data, technical analysis, market context,
-> financial news and a production ML model to generate BUY / HOLD / SELL
-> signals.**
+> **An end-to-end machine-learning research and decision-support system
+> for Indian equities.**
 
-```{=html}
-<p align="center">
-```
-**📊 Market Data** → **📐 Features** → **🧠 ML Model** → **📰 News** →
-**🎯 Signal Engine** → **📈 Dashboard**
+Indian Stock Trading AI combines **market data, technical indicators,
+NIFTY 50 and BANK NIFTY context, financial news intelligence, machine
+learning, stock ranking, strategy research, backtesting, and an
+interactive Streamlit dashboard** into one complete workflow.
 
-```{=html}
-</p>
-```
+The project is designed around a practical question:
 
-------------------------------------------------------------------------
-
-## 🚀 What is this project?
-
-**Indian Stock Trading AI** is a complete quantitative research and
-decision-support platform built around a 20-stock Indian equity
-universe.
-
-The system takes raw market information and turns it into an
-interpretable stock-ranking workflow:
-
-1.  Downloads historical/latest Indian stock data.
-2.  Builds technical indicators.
-3.  Adds NIFTY 50 and BANK NIFTY market context.
-4.  Collects recent financial news.
-5.  Generates a news-sentiment signal.
-6.  Uses a production Random Forest model to estimate **20-trading-day
-    excess return**.
-7.  Ranks stocks cross-sectionally.
-8.  Combines ML, technical and news signals.
-9.  Produces **BUY / HOLD / SELL** recommendations.
-10. Presents everything through an interactive Streamlit dashboard.
-
-The goal is not to claim that an algorithm can predict the market
-perfectly.
-
-The goal is to build a **realistic, reproducible end-to-end ML trading
-research system** and test where machine learning actually adds value.
+> **Can machine learning and multiple market signals be combined into a
+> systematic, testable process for ranking Indian stocks and generating
+> BUY / HOLD / SELL signals?**
 
 ------------------------------------------------------------------------
 
-# 🎯 Business Problem
+## 🚀 Project at a Glance
 
-An investor looking at 20 large Indian companies has to process multiple
-information sources:
+  -----------------------------------------------------------------------
+  Area                                Implementation
+  ----------------------------------- -----------------------------------
+  Stock Universe                      20 Indian equities
 
--   Price movement
--   Volatility
--   Trading volume
--   Technical indicators
--   NIFTY market momentum
--   BANK NIFTY momentum
--   Company-specific news
--   Relative stock strength
--   Model forecasts
+  Market Data                         Yahoo Finance / `yfinance`
 
-Doing this manually is slow and inconsistent.
+  Frequency                           Daily market data
 
-This project asks:
+  Technical Analysis                  RSI, MACD, SMA, EMA, ATR, Bollinger
+                                      Bands, volatility, volume
 
-> **Can market data, technical features, market context and recent news
-> be combined into a systematic AI-driven stock-ranking and
-> recommendation system?**
+  Market Context                      NIFTY 50 + BANK NIFTY
 
-Instead of asking the model:
+  News                                Recent financial news via Google
+                                      News RSS
 
-> "Will RELIANCE go up tomorrow?"
+  ML Model                            Random Forest Regressor
 
-the production system focuses on a more realistic research question:
+  Prediction Horizon                  20 trading days
 
-> **"Which stocks currently have the strongest expected performance
-> relative to the NIFTY over the next 20 trading days?"**
+  ML Target                           Stock 20D return relative to NIFTY
 
-That distinction is important because short-term price direction is
-extremely noisy.
+  Signal Engine                       ML + Technical + News
+
+  Final Weights                       ML 50% / Technical 25% / News 25%
+
+  Output                              BUY / HOLD / SELL
+
+  Interface                           Streamlit
+
+  Visualization                       Plotly
+
+  Validation                          Walk-forward and portfolio
+                                      backtesting
+  -----------------------------------------------------------------------
 
 ------------------------------------------------------------------------
 
-# 🧠 System Architecture
+# 🎯 Why I Built This
+
+Financial markets contain a huge amount of information.
+
+For a single stock, an investor may want to consider:
+
+-   recent price movement
+-   momentum
+-   volatility
+-   trading volume
+-   technical indicators
+-   broader market direction
+-   banking-sector direction
+-   company-specific news
+-   expected future return
+-   relative performance versus the market
+
+Processing all of this manually across 20 stocks is difficult to do
+consistently.
+
+This project automates that workflow.
+
+Instead of relying on one indicator such as RSI or MACD, the system
+combines multiple information sources and produces a structured output
+that can be inspected, tested, and backtested.
+
+The project is intentionally built as a **research system**, not as a
+claim that machine learning can perfectly predict financial markets.
+
+------------------------------------------------------------------------
+
+# 🧠 Core Idea
+
+The production system follows this pipeline:
+
+**Market Data**\
+↓\
+**Feature Engineering**\
+↓\
+**Market Context**\
+↓\
+**News Intelligence**\
+↓\
+**Machine Learning Forecast**\
+↓\
+**Cross-Sectional Stock Ranking**\
+↓\
+**Recommendation Engine**\
+↓\
+**BUY / HOLD / SELL**\
+↓\
+**Interactive Dashboard**
+
+------------------------------------------------------------------------
+
+# 🏗️ System Architecture
 
 ``` text
-                         ┌─────────────────────┐
-                         │   Indian Equities   │
-                         │     20 Stocks       │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │    Market Data      │
-                         │       yfinance      │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                    ┌─────────────────────────────┐
-                    │      Feature Engineering    │
-                    │                             │
-                    │ RSI • MACD • SMA • EMA      │
-                    │ Volatility • Volume         │
-                    │ Returns • ATR • Bollinger   │
-                    └──────────────┬──────────────┘
-                                   │
-                  ┌────────────────┼────────────────┐
-                  ▼                ▼                ▼
-          ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-          │ NIFTY 50     │ │ BANK NIFTY   │ │ Financial    │
-          │ Context      │ │ Context      │ │ News         │
-          └──────┬───────┘ └──────┬───────┘ └──────┬───────┘
-                 │                │                │
-                 └────────────────┼────────────────┘
-                                  ▼
-                         ┌─────────────────────┐
-                         │ Production ML Model │
-                         │ Random Forest       │
-                         │ Regressor           │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │ 20D Excess Return   │
-                         │ Forecast            │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │ Cross-Sectional     │
-                         │ Ranking             │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                    ┌─────────────────────────────┐
-                    │ Recommendation Engine       │
-                    │                             │
-                    │ ML          50%             │
-                    │ Technical   25%             │
-                    │ News        25%             │
-                    └──────────────┬──────────────┘
-                                   │
-                                   ▼
-                       ┌─────────────────────────┐
-                       │ BUY / HOLD / SELL       │
-                       └────────────┬────────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │ Streamlit Dashboard │
-                         └─────────────────────┘
+┌─────────────────────────────┐
+│      Indian Equities        │
+│        20 Stocks             │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│       Market Data Layer      │
+│                              │
+│  OHLCV • Price • Volume      │
+│  Historical + Latest Data    │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│    Technical Feature Layer   │
+│                              │
+│ RSI • MACD • SMA • EMA       │
+│ ATR • Bollinger • Volatility │
+│ Returns • Volume             │
+└──────────────┬──────────────┘
+               │
+       ┌───────┴────────┐
+       ▼                ▼
+┌──────────────┐  ┌────────────────┐
+│ NIFTY 50     │  │ BANK NIFTY     │
+│ Market       │  │ Market         │
+│ Context      │  │ Context        │
+└──────┬───────┘  └───────┬────────┘
+       │                  │
+       └────────┬─────────┘
+                ▼
+┌─────────────────────────────┐
+│       News Intelligence      │
+│                              │
+│ Headlines • Sentiment        │
+│ Recency • News Intensity     │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│     Production ML Model      │
+│                              │
+│ Random Forest Regressor      │
+│ 20-Day Excess Return         │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│   Cross-Sectional Ranking     │
+│                              │
+│ Strongest → Weakest Stocks   │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│     Recommendation Engine     │
+│                              │
+│ ML          50%              │
+│ Technical   25%              │
+│ News        25%              │
+└──────────────┬──────────────┘
+               │
+               ▼
+        ┌──────┼──────┐
+        ▼      ▼      ▼
+      BUY    HOLD    SELL
+               │
+               ▼
+┌─────────────────────────────┐
+│      Streamlit Dashboard     │
+│                              │
+│ Terminal • Analysis          │
+│ Rankings • Backtest • System │
+└─────────────────────────────┘
 ```
 
 ------------------------------------------------------------------------
@@ -178,7 +217,6 @@ INDIAN-STOCK-TRADING-AI/
 ├── notebooks/
 │
 ├── src/
-│   │
 │   ├── main.py
 │   ├── run_ai.py
 │   │
@@ -205,9 +243,9 @@ INDIAN-STOCK-TRADING-AI/
 │   │   ├── train_model.py
 │   │   ├── train_all_models.py
 │   │   ├── train_regression_models.py
-│   │   ├── live_predictions.py
 │   │   ├── train_production_model.py
-│   │   └── ...research scripts
+│   │   ├── live_predictions.py
+│   │   └── research / validation scripts
 │   │
 │   ├── strategy/
 │   │   ├── technical_signal.py
@@ -216,69 +254,70 @@ INDIAN-STOCK-TRADING-AI/
 │   │   ├── final_engine.py
 │   │   ├── risk_engine.py
 │   │   ├── portfolio_backtest.py
-│   │   └── ...research/backtest scripts
+│   │   └── research / backtest scripts
 │   │
 │   └── dashboard.py
 │
 ├── tests/
-│
 ├── .env
 ├── .gitignore
 ├── requirements.txt
 └── README.md
 ```
 
-> Generated datasets, model artifacts, `.env`, virtual environments and
-> other runtime files are intentionally excluded from Git.
+Generated data, model artifacts, secrets, and local environments are
+excluded from version control.
 
 ------------------------------------------------------------------------
 
 # 📊 Stock Universe
 
-The current production universe contains 20 Indian equities:
+The current system covers 20 Indian equities:
 
-  Symbol          Company
-  --------------- ---------------------------
-  RELIANCE.NS     Reliance Industries
-  TCS.NS          Tata Consultancy Services
-  HDFCBANK.NS     HDFC Bank
-  ICICIBANK.NS    ICICI Bank
-  INFY.NS         Infosys
-  HINDUNILVR.NS   Hindustan Unilever
-  ITC.NS          ITC
-  SBIN.NS         State Bank of India
-  BHARTIARTL.NS   Bharti Airtel
-  KOTAKBANK.NS    Kotak Mahindra Bank
-  LT.NS           Larsen & Toubro
-  AXISBANK.NS     Axis Bank
-  MARUTI.NS       Maruti Suzuki
-  SUNPHARMA.NS    Sun Pharmaceutical
-  TITAN.NS        Titan Company
-  ADANIENT.NS     Adani Enterprises
-  ADANIPORTS.NS   Adani Ports
-  BAJFINANCE.NS   Bajaj Finance
-  ASIANPAINT.NS   Asian Paints
-  ULTRACEMCO.NS   UltraTech Cement
+  Symbol            Company
+  ----------------- ---------------------------
+  `RELIANCE.NS`     Reliance Industries
+  `TCS.NS`          Tata Consultancy Services
+  `HDFCBANK.NS`     HDFC Bank
+  `ICICIBANK.NS`    ICICI Bank
+  `INFY.NS`         Infosys
+  `HINDUNILVR.NS`   Hindustan Unilever
+  `ITC.NS`          ITC
+  `SBIN.NS`         State Bank of India
+  `BHARTIARTL.NS`   Bharti Airtel
+  `KOTAKBANK.NS`    Kotak Mahindra Bank
+  `LT.NS`           Larsen & Toubro
+  `AXISBANK.NS`     Axis Bank
+  `MARUTI.NS`       Maruti Suzuki
+  `SUNPHARMA.NS`    Sun Pharmaceutical
+  `TITAN.NS`        Titan Company
+  `ADANIENT.NS`     Adani Enterprises
+  `ADANIPORTS.NS`   Adani Ports
+  `BAJFINANCE.NS`   Bajaj Finance
+  `ASIANPAINT.NS`   Asian Paints
+  `ULTRACEMCO.NS`   UltraTech Cement
 
-The universe can be expanded later.
-
-------------------------------------------------------------------------
-
-# 1️⃣ Market Data Layer
-
-### `src/data/stock_universe.py`
-
-Defines the stock universe used throughout the system.
-
-This creates a single source of truth for symbols and company names.
+The architecture is designed so the universe can be expanded later.
 
 ------------------------------------------------------------------------
 
-### `src/data/market_data.py`
+# 1. 📥 Market Data Layer
 
-Responsible for downloading historical OHLCV data.
+## `src/data/stock_universe.py`
 
-The pipeline retrieves:
+This file defines the production stock universe and maps ticker symbols
+to company names.
+
+Keeping the universe centralized prevents different parts of the
+pipeline from using different stock lists.
+
+------------------------------------------------------------------------
+
+## `src/data/market_data.py`
+
+Downloads daily historical market data.
+
+The main fields are:
 
 -   Open
 -   High
@@ -286,74 +325,81 @@ The pipeline retrieves:
 -   Close
 -   Volume
 
-The project currently uses approximately five years of daily historical
-data.
+The project uses approximately five years of historical daily data for
+model development and research.
 
-Market data is stored locally so downstream feature engineering and
-research can work from reproducible files.
+The downloaded datasets are written to the local `data/raw/` directory.
 
 ------------------------------------------------------------------------
 
-### `src/data/market_context.py`
+## `src/data/market_context.py`
 
-Provides broader market context through:
+Downloads broader Indian market data and calculates market-context
+features for:
 
 -   NIFTY 50
 -   BANK NIFTY
 
-The system calculates market-return features that help the model
-understand whether an individual stock is moving with or against the
-broader Indian market.
+These features help the model understand the broader market environment
+instead of looking at each stock in isolation.
 
 ------------------------------------------------------------------------
 
-# 2️⃣ Technical Feature Engineering
+# 2. 📐 Technical Feature Engineering
 
-### `src/features/technical_indicators.py`
+## `src/features/technical_indicators.py`
 
-Transforms raw OHLCV data into technical features.
+Raw OHLCV data is transformed into a larger technical feature set.
 
-The feature engine includes:
+### Trend Features
 
-### Trend
+``` text
+SMA_20
+SMA_50
+EMA_20
+Price_vs_SMA20
+Price_vs_SMA50
+SMA20_vs_SMA50
+```
 
--   SMA 20
--   SMA 50
--   EMA 20
--   Price vs SMA20
--   Price vs SMA50
--   SMA20 vs SMA50
+### Momentum Features
 
-### Momentum
+``` text
+Return_1D
+Return_5D
+Return_10D
+Return_20D
+RSI_14
+MACD
+MACD_Signal
+MACD_Histogram
+```
 
--   1-day return
--   5-day return
--   10-day return
--   20-day return
--   RSI 14
--   MACD
--   MACD Signal
--   MACD Histogram
+### Volatility Features
 
-### Volatility
-
--   20-day volatility
--   ATR 14
--   ATR percentage
+``` text
+Volatility_20D
+ATR_14
+ATR_Percent
+```
 
 ### Bollinger Bands
 
--   Middle band
--   Upper band
--   Lower band
--   Bollinger position
+``` text
+BB_Middle
+BB_Upper
+BB_Lower
+BB_Position
+```
 
-### Volume
+### Volume Features
 
--   20-day volume average
--   Volume ratio
+``` text
+Volume_SMA_20
+Volume_Ratio
+```
 
-The output is saved as:
+The resulting feature files are stored as:
 
 ``` text
 data/processed/<SYMBOL>_features.csv
@@ -361,75 +407,75 @@ data/processed/<SYMBOL>_features.csv
 
 ------------------------------------------------------------------------
 
-# 3️⃣ Market Context Features
+# 3. 🌐 Market Context
 
-### `src/features/add_market_features.py`
-
-Adds broader-market information to each stock's feature dataset.
-
-The production model ultimately uses:
+The system adds broader market momentum:
 
 ``` text
-Volatility_20D
-Volume_Ratio
 NIFTY_Return_5D
 NIFTY_Return_20D
+
 BANKNIFTY_Return_5D
 BANKNIFTY_Return_20D
 ```
 
-These features deliberately keep the production model relatively small.
-
-The research process showed that a smaller, more stable feature set
-performed better than throwing every available technical feature into
-the model.
-
-------------------------------------------------------------------------
-
-# 4️⃣ News Intelligence
-
-### `src/data/news_data.py`
-
-Collects recent financial news using Google News RSS.
-
-The news engine searches around each company and Indian financial-market
-context.
-
-It extracts information such as:
-
--   headline
--   publication time
--   source
--   article URL
-
-Important:
-
-> This is **recent/live news**, not historical news.
-
-Therefore, live news is not used as a historical feature in the
-backtests.
-
-That avoids introducing a major look-ahead problem.
-
-------------------------------------------------------------------------
-
-### `src/features/news_sentiment.py`
-
-Processes news headlines and creates sentiment information.
-
-The system turns headline-level information into an aggregated
-stock-level sentiment signal.
-
-------------------------------------------------------------------------
-
-### `src/features/live_news_signal.py`
-
-Creates current news signals for all 20 stocks.
-
-The output contains fields such as:
+This allows the model to distinguish between:
 
 ``` text
-symbol
+Stock-specific movement
+```
+
+and:
+
+``` text
+Broader market movement
+```
+
+That distinction became especially important during model research.
+
+------------------------------------------------------------------------
+
+# 4. 📰 News Intelligence
+
+## `src/data/news_data.py`
+
+The system collects recent financial headlines using Google News RSS.
+
+News collection includes company-related financial news and produces
+information such as:
+
+-   headline
+-   source
+-   publication time
+-   URL
+
+### Important design decision
+
+The news engine is designed for **recent/live news**.
+
+It is not a historical news database.
+
+Therefore, live news is **not used as a historical feature in the
+backtests**.
+
+This prevents the system from accidentally using information that would
+not have been available at the historical prediction time.
+
+------------------------------------------------------------------------
+
+## `src/features/news_sentiment.py`
+
+Converts headlines into sentiment information.
+
+------------------------------------------------------------------------
+
+## `src/features/live_news_signal.py`
+
+Aggregates recent company news into stock-level signals.
+
+The resulting data can contain:
+
+``` text
 News_Count
 News_Sentiment
 Positive_News_Count
@@ -441,75 +487,131 @@ News_Signal
 News_Label
 ```
 
-The recommendation engine uses this as one component of the final
-signal.
+This becomes one of the inputs to the live recommendation engine.
 
 ------------------------------------------------------------------------
 
-# 5️⃣ Target Engineering
+# 5. 🎯 Target Engineering
 
-One of the most important decisions in the project was changing the
-prediction problem.
+One of the most important changes during the research process was
+changing the prediction problem.
 
-Instead of simply predicting:
+An early approach focused on:
 
 ``` text
 Will the stock go UP or DOWN?
 ```
 
-the production model predicts:
+The research showed that this was weak.
+
+The production problem became:
 
 ``` text
 20D Stock Return - 20D NIFTY Return
 ```
 
-This creates an **excess-return** target.
+This is an **excess-return target**.
 
-The idea is to ask:
+The model is therefore attempting to answer:
 
-> Is this stock expected to outperform the broader Indian market?
+> **Which stocks are likely to outperform or underperform the broader
+> market over the next 20 trading days?**
 
-rather than merely:
-
-> Is the market going up?
-
-This makes the model more useful for cross-sectional stock selection.
+This is better aligned with a cross-sectional stock-ranking strategy.
 
 ------------------------------------------------------------------------
 
-# 6️⃣ Machine Learning Research
+# 6. 🤖 Machine Learning Research
 
-The project did not jump directly to the final model.
+The project tested multiple approaches rather than selecting the first
+model that produced an attractive backtest.
 
-Multiple model architectures were tested.
-
-The research included:
+Research included:
 
 -   binary classification
 -   regression
 -   trade-quality classification
 -   calibrated models
--   ensembles
--   multiple forecast horizons
+-   ensemble models
+-   different prediction horizons
 -   stock-specific models
+-   universal models
 -   cross-sectional ranking
 -   walk-forward validation
 -   feature ablation
--   stock-universe testing
--   exit architecture testing
--   realistic execution assumptions
--   daily mark-to-market portfolio testing
+-   stock-universe analysis
+-   execution assumptions
+-   exit architectures
+-   portfolio-level validation
 
-This research process is important because many apparently good trading
-models disappear when tested correctly.
+The purpose was to identify where the model actually provided useful
+information.
 
 ------------------------------------------------------------------------
 
-# 7️⃣ Production ML Model
+# 7. 🔬 What the Research Found
 
-### `src/models/train_production_model.py`
+## Short-Term Classification
 
-The final production model is a:
+The initial 5-day binary classifier was weak:
+
+  Metric           Result
+  -------------- --------
+  Accuracy         49.01%
+  Baseline         50.69%
+  UP Precision     52.20%
+  UP Recall        45.65%
+  ROC-AUC           0.534
+
+The model did not provide strong evidence that simple short-term
+direction classification was useful.
+
+------------------------------------------------------------------------
+
+## Initial Regression
+
+The first larger regression model also struggled:
+
+  Metric                    Result
+  ---------------------- ---------
+  MAE                      \~3.17%
+  RMSE                     \~3.99%
+  R²                       \~-0.51
+  Directional Accuracy     \~49.8%
+  Correlation               \~0.09
+
+This was another reason not to treat model complexity as proof of
+predictive power.
+
+------------------------------------------------------------------------
+
+# 8. ⏱️ Horizon Analysis
+
+The research tested several forward horizons.
+
+Approximate historical average forward returns were:
+
+  Horizon     Mean Return   Win Rate
+  --------- ------------- ----------
+  1D              +0.041%     50.79%
+  3D              +0.126%     51.54%
+  5D              +0.216%     52.82%
+  10D             +0.440%     53.77%
+  20D             +0.896%     54.75%
+
+The 20-day horizon became the production focus.
+
+This does **not** mean that 20-day returns are predictable with
+certainty. It means the research provided a stronger basis for
+investigating that horizon.
+
+------------------------------------------------------------------------
+
+# 9. 🏆 Production Model
+
+## `src/models/train_production_model.py`
+
+The production model is a:
 
 > **Random Forest Regressor**
 
@@ -517,20 +619,16 @@ Configuration:
 
 ``` text
 Trees:             400
-Maximum depth:     8
-Minimum split:     15
-Minimum leaf:      5
-Max features:      sqrt
-Random state:      42
+Maximum Depth:       8
+Minimum Split:      15
+Minimum Leaf:        5
+Max Features:      sqrt
+Random State:       42
 ```
 
-### Target
+### Production Features
 
-``` text
-Target_Excess_Return_20D
-```
-
-### Production feature set
+The final locked feature set contains six features:
 
 ``` text
 Volatility_20D
@@ -541,51 +639,70 @@ BANKNIFTY_Return_5D
 BANKNIFTY_Return_20D
 ```
 
-The model is trained using data available before the latest prediction
-period.
-
-Generated artifacts:
+### Target
 
 ``` text
-data/models/production/
-├── universal_rf.joblib
-├── feature_list.joblib
-└── model_metadata.json
+Target_Excess_Return_20D
+```
+
+where:
+
+``` text
+Target = Future 20D Stock Return - NIFTY 20D Return
 ```
 
 ------------------------------------------------------------------------
 
-# 8️⃣ Live ML Predictions
+# 10. 🧠 Why a Small Feature Set?
 
-### `src/models/live_predictions.py`
+The research process compared larger and smaller feature groups.
 
-Loads the production Random Forest and the latest stock features.
+A key finding was:
 
-For every stock it:
+> More features did not automatically produce a better trading model.
 
-1.  Loads the latest feature row.
-2.  Applies the exact production feature list.
-3.  Generates a 20-day excess-return forecast.
-4.  Ranks the stocks cross-sectionally.
-5.  Saves the predictions.
+The final production architecture therefore uses a compact feature set
+containing:
 
-Output:
+-   stock volatility
+-   stock volume behavior
+-   NIFTY momentum
+-   BANK NIFTY momentum
+
+This makes the production model easier to inspect and reduces
+unnecessary complexity.
+
+------------------------------------------------------------------------
+
+# 11. 📈 Live ML Predictions
+
+## `src/models/live_predictions.py`
+
+The live prediction layer:
+
+1.  Loads the production Random Forest.
+2.  Loads the latest feature data.
+3.  Selects the exact production features.
+4.  Generates the 20-day excess-return prediction.
+5.  Ranks all stocks.
+6.  Saves the results.
+
+Outputs:
 
 ``` text
 data/processed/live_ml/live_predictions.csv
 data/processed/live_ml/live_predictions.json
 ```
 
-The output provides a current model ranking rather than pretending the
-predicted return is a guaranteed outcome.
+The model output is primarily used as a **relative ranking signal**.
 
 ------------------------------------------------------------------------
 
-# 9️⃣ Recommendation Engine
+# 12. 🎯 Recommendation Engine
 
-### `src/strategy/production_engine.py`
+## `src/strategy/production_engine.py`
 
-The recommendation engine combines three information sources:
+The recommendation engine combines three components:
 
 ``` text
 Machine Learning       50%
@@ -593,90 +710,100 @@ Technical Analysis     25%
 News Intelligence      25%
 ```
 
-The final signal is generated using the configured thresholds.
-
 Conceptually:
 
 ``` text
-                ML
-                │
-                ▼
-          ┌───────────┐
-          │           │
-Technical ─►  Signal  ◄─ News
-          │  Engine   │
-          └─────┬─────┘
-                │
-        ┌───────┼────────┐
-        ▼       ▼        ▼
-       BUY    HOLD      SELL
+               ML Forecast
+                   │
+                   ▼
+          ┌─────────────────┐
+          │                 │
+Technical │ Recommendation  │ News
+─────────►│     Engine      │◄─────────
+          │                 │
+          └────────┬────────┘
+                   │
+          ┌────────┼────────┐
+          ▼        ▼        ▼
+        BUY      HOLD      SELL
 ```
 
-The system also reports:
+The engine also produces:
 
 -   expected 20D return
--   AI score
--   confidence / conviction
--   ML contribution
--   technical contribution
--   news contribution
+-   final AI score
+-   conviction
+-   ML forecast
+-   recommendation
 
-### Important distinction
+### Important
 
-**Confidence is signal strength, not probability of profit.**
+The displayed **conviction score is signal strength**.
 
-A `70%` conviction score does **not** mean there is a 70% chance the
-trade will make money.
+It is **not a calibrated probability of profit**.
+
+For example:
+
+``` text
+Conviction = 70%
+```
+
+does not mean:
+
+``` text
+70% probability of making money
+```
 
 ------------------------------------------------------------------------
 
-# 🔟 Automated AI Pipeline
+# 13. ⚡ One-Command Production Pipeline
 
-### `src/run_ai.py`
+## `src/run_ai.py`
 
-This is the main production workflow.
-
-Running:
+The complete pipeline can be executed using:
 
 ``` bash
 python src/run_ai.py
 ```
 
-executes:
+The script runs:
 
 ``` text
-1. LIVE MARKET DATA
+1. Live Market Data
         ↓
-2. BUILD TECHNICAL FEATURES
+2. Technical Feature Generation
         ↓
-3. ADD MARKET FEATURES
+3. Market Context
         ↓
-4. COLLECT LIVE NEWS
+4. Live News
         ↓
-5. GENERATE LIVE ML PREDICTIONS
+5. ML Predictions
         ↓
-6. GENERATE AI RECOMMENDATIONS
+6. AI Recommendations
 ```
 
-This means the entire system can be refreshed with one command.
+This turns multiple independent scripts into a single repeatable
+workflow.
 
 ------------------------------------------------------------------------
 
-# 🖥️ Streamlit Dashboard
+# 14. 🖥️ Interactive Dashboard
 
-### `src/dashboard.py`
+## `src/dashboard.py`
 
-The dashboard is the user-facing layer of the project.
+The Streamlit dashboard is the presentation layer of the system.
 
-It provides five main sections.
+It currently contains five main sections.
 
 ------------------------------------------------------------------------
 
 ## 🏠 AI Terminal
 
-The main trading-intelligence screen shows:
+The main screen provides a high-level view of the current model state.
 
--   stocks analyzed
+It includes:
+
+-   number of stocks analyzed
 -   BUY count
 -   HOLD count
 -   SELL count
@@ -687,22 +814,22 @@ The main trading-intelligence screen shows:
 -   ML forecast
 -   Top 3 opportunities
 -   20-stock AI heatmap
--   AI ranking chart
--   expected-return chart
+-   ranking charts
+-   expected-return charts
 
-The purpose is to answer the question:
+The purpose is to answer:
 
-> **What does the model currently see?**
+> **What does the production system currently see?**
 
 ------------------------------------------------------------------------
 
-# 📊 Stock Analysis
+## 📊 Stock Analysis
 
-Users can select any stock in the universe.
+Users can select an individual stock.
 
-The page provides:
+The page combines:
 
-### Price
+### Price Analysis
 
 -   latest price
 -   daily change
@@ -719,54 +846,56 @@ The page provides:
 -   conviction
 -   signal architecture
 
-### Technicals
+### Technical Analysis
 
 -   RSI
 -   MACD
 -   volatility
 -   volume ratio
--   price vs moving averages
+-   price vs SMA20
+-   price vs SMA50
+-   SMA20 vs SMA50
 -   ATR percentage
--   RSI visualization
--   volume visualization
+-   RSI chart
+-   volume chart
 
-### News
+### News Intelligence
 
-Recent news and aggregated sentiment information.
+-   recent company news
+-   available sentiment information
 
 ------------------------------------------------------------------------
 
 # 🧠 AI Rankings
 
-The ranking page answers:
-
-> **Which stocks does the model currently rank highest?**
+The ranking page focuses on stock selection.
 
 It provides:
 
--   Top 3 AI opportunities
--   expected 20D return
--   AI score
--   conviction
--   complete 20-stock ranking
--   AI score visualization
--   expected-return visualization
+-   🥇 Top-ranked opportunity
+-   🥈 second-ranked opportunity
+-   🥉 third-ranked opportunity
+-   AI score comparison
+-   expected 20D return comparison
 -   signal distribution
--   CSV export
+-   complete 20-stock ranking
+-   downloadable CSV
 
-This is the main cross-sectional stock-selection screen.
+This page is designed around the question:
+
+> **Which stocks does the model currently rank highest?**
 
 ------------------------------------------------------------------------
 
 # 📈 Backtest
 
-The dashboard also communicates the historical research results.
+The dashboard presents the final strategy research results.
 
-The selected final research architecture is:
+The selected V34 architecture was:
 
 > **Pure 20D Hold**
 
-Key V34 research results:
+Historical research results:
 
   Metric                    Result
   ------------------ -------------
@@ -776,244 +905,196 @@ Key V34 research results:
   Profit Factor           **1.38**
   Average Trade         **+1.09%**
 
-These figures are historical research results, not live performance.
+These numbers are historical research results only.
+
+They should not be interpreted as expected future performance.
 
 ------------------------------------------------------------------------
 
 # ⚙️ System
 
-The System page exposes the production architecture and health of the
-pipeline.
+The System page exposes the production architecture.
 
 It shows:
 
--   model architecture
--   feature set
--   production model configuration
--   pipeline status
--   generated files
--   dataset counts
--   stock-universe size
+-   AI architecture
+-   model configuration
+-   production feature set
+-   pipeline health
+-   generated file status
+-   current dataset counts
+-   stock universe size
 
-This makes the application easier to audit and demonstrate in a
-portfolio interview.
-
-------------------------------------------------------------------------
-
-# 🔬 Research Journey
-
-The project deliberately went through multiple iterations.
-
-## Early findings
-
-Short-horizon direction prediction was weak.
-
-The 5-day classifier produced approximately:
-
-``` text
-Accuracy:       49.01%
-Baseline:       50.69%
-ROC-AUC:         0.534
-```
-
-This showed that predicting simple up/down movement was not strong
-enough.
+This makes the project easier to inspect during a technical interview.
 
 ------------------------------------------------------------------------
 
-## Regression findings
+# 🧪 Validation Philosophy
 
-The initial 56-feature regression model also struggled.
+A major goal of the project was to avoid misleading backtests.
 
-The model produced:
+The research therefore progressed toward:
 
-``` text
-MAE:       ~3.17%
-RMSE:      ~3.99%
-R²:       -0.51
-Direction: ~49.8%
-```
+### Chronological validation
 
-A negative R² indicated that the model did not beat a simple baseline on
-that task.
+Training data comes before testing data.
 
-This was an important research result.
+### Walk-forward testing
 
-------------------------------------------------------------------------
+The model is repeatedly trained using past information and evaluated on
+later periods.
 
-# ⏱️ Forecast Horizon Research
+### Portfolio-level evaluation
 
-Longer horizons showed a gradual improvement in average historical
-returns.
+The strategy is evaluated as a portfolio rather than only through model
+accuracy.
 
-Approximate average forward returns:
+### Realistic execution
 
-  Horizon     Mean Return
-  --------- -------------
-  1D              +0.041%
-  3D              +0.126%
-  5D              +0.216%
-  10D             +0.440%
-  20D             +0.896%
+The research investigated entry timing, exits, stop-losses, targets, and
+daily mark-to-market behavior.
 
-This supported testing a longer 20-day horizon.
+### Feature ablation
+
+Feature groups were compared instead of assuming every feature adds
+value.
 
 ------------------------------------------------------------------------
 
-# 🎯 Excess-Return Research
+# 📊 Excess-Return Research
 
-The project then shifted from absolute returns to:
+The best excess-return research model produced approximately:
 
-``` text
-Stock Return - NIFTY Return
-```
+  Metric                           Result
+  ----------------------------- ---------
+  RMSE                            \~6.88%
+  Relative Direction Accuracy     \~50.3%
+  Mean Rank IC                    \~0.081
+  Top-5 Excess Return              +0.77%
+  Bottom-5 Excess Return           -0.65%
+  Top/Bottom Spread                +1.42%
 
-The best research model produced:
+The main takeaway was:
 
-``` text
-RMSE:             ~6.88%
-Relative Direction: ~50.3%
-Mean Rank IC:       ~0.081
-Top-5 Excess:       +0.77%
-Bottom-5 Excess:    -0.65%
-Top/Bottom Spread:  +1.42%
-```
+> **The model showed more evidence of usefulness for ranking stocks than
+> for predicting exact future returns.**
 
-The important finding was:
-
-> The model was more useful for **ranking stocks** than for predicting
-> exact future returns.
-
-That insight shaped the production architecture.
+That finding directly influenced the production architecture.
 
 ------------------------------------------------------------------------
 
-# 🚶 Walk-Forward Validation
+# 📉 Strategy Research
 
-The project used walk-forward testing to reduce look-ahead bias.
+The project also tested:
 
-Instead of training on the entire historical dataset and then testing on
-the same period, the process respects chronological order:
-
-``` text
-TRAIN
-──────────────────► TEST
-       TRAIN
-       ──────────────────► TEST
-              TRAIN
-              ──────────────────► TEST
-```
-
-This is much closer to how a real trading model would operate.
-
-------------------------------------------------------------------------
-
-# 🧪 Feature Selection
-
-A large feature set was not automatically better.
-
-Research found that a smaller stable feature group performed better.
-
-The production feature set therefore focuses on:
-
-``` text
-Stock Volatility
-Stock Volume
-NIFTY Momentum
-BANK NIFTY Momentum
-```
-
-This is a deliberate design choice:
-
-> **Prefer a smaller feature set with evidence of stability over a
-> larger feature set that looks impressive but does not generalize.**
-
-------------------------------------------------------------------------
-
-# 📉 Strategy Validation
-
-The research tested:
-
--   different portfolio sizes
--   ranking strategies
--   stock-specific models
+-   static ranking
 -   universal models
--   stop-loss architectures
+-   stock-specific models
+-   different portfolio sizes
+-   different feature sets
+-   different stop-loss levels
 -   take-profit architectures
 -   pure holding periods
 -   realistic execution
 -   daily mark-to-market performance
 -   different stock universes
 
-One of the important conclusions was that apparently strong results
-could weaken substantially under more realistic validation.
+This research showed that some attractive-looking results became weaker
+after stricter validation.
 
-That is why the project does **not** present the backtest as proof of
-future profitability.
-
-------------------------------------------------------------------------
-
-# 🧠 What the Model Learned
-
-The final production model's feature importance showed the strongest
-contributions from:
-
-``` text
-BANKNIFTY_Return_20D
-Volatility_20D
-NIFTY_Return_20D
-BANKNIFTY_Return_5D
-NIFTY_Return_5D
-Volume_Ratio
-```
-
-This suggests that broader market regime/context plays an important role
-in the model's stock-ranking decisions.
+That is an important result in itself.
 
 ------------------------------------------------------------------------
 
-# 🛠️ Tech Stack
+# 💡 Key Research Lessons
 
-### Programming
+### 1. More complex does not mean more predictive
 
--   Python
+Adding more indicators did not automatically improve performance.
 
-### Data
+### 2. Short-term direction is extremely noisy
 
--   Pandas
--   NumPy
--   yfinance
--   Requests
--   BeautifulSoup
+The initial classification models did not outperform simple baselines
+convincingly.
 
-### Machine Learning
+### 3. Ranking can be more useful than exact prediction
 
--   Scikit-learn
--   Random Forest
--   Joblib
+The model's stronger role was identifying relative differences between
+stocks.
 
-### Visualization
+### 4. Market context matters
 
--   Plotly
--   Streamlit
+NIFTY and BANK NIFTY momentum became important components of the final
+feature set.
 
-### Engineering
+### 5. Backtesting must be conservative
 
--   Git
--   GitHub
--   Virtual environments
--   Modular Python architecture
+A strategy that looks good under simplified assumptions may deteriorate
+after realistic validation.
+
+### 6. Model confidence should not be confused with probability
+
+The dashboard explicitly treats conviction as signal strength.
 
 ------------------------------------------------------------------------
 
-# ▶️ How to Run
+# 🛠️ Technology Stack
+
+## Python
+
+Core programming language.
+
+## Pandas
+
+Data cleaning, transformation and feature processing.
+
+## NumPy
+
+Numerical operations.
+
+## yfinance
+
+Market-data retrieval.
+
+## Requests + BeautifulSoup
+
+News-data collection and parsing.
+
+## Scikit-learn
+
+Machine-learning models and evaluation.
+
+## Joblib
+
+Model serialization.
+
+## Plotly
+
+Interactive financial charts and visualizations.
+
+## Streamlit
+
+Interactive web dashboard.
+
+## Git + GitHub
+
+Version control and portfolio deployment.
+
+------------------------------------------------------------------------
+
+# ▶️ Installation
 
 ## 1. Clone the repository
 
 ``` bash
 git clone https://github.com/KaranKapadia03/INDIAN-STOCK-TRADING-AI.git
+```
+
+``` bash
 cd INDIAN-STOCK-TRADING-AI
 ```
+
+------------------------------------------------------------------------
 
 ## 2. Create a virtual environment
 
@@ -1023,11 +1104,13 @@ Windows:
 python -m venv .venv
 ```
 
-Activate:
+Activate it:
 
 ``` powershell
 .venv\Scripts\activate
 ```
+
+------------------------------------------------------------------------
 
 ## 3. Install dependencies
 
@@ -1035,52 +1118,70 @@ Activate:
 pip install -r requirements.txt
 ```
 
-## 4. Run the AI pipeline
+------------------------------------------------------------------------
+
+# ▶️ Run the AI Pipeline
+
+From the project root:
 
 ``` powershell
 python src\run_ai.py
 ```
 
-## 5. Launch the dashboard
+This refreshes:
+
+``` text
+Market Data
+Technical Features
+Market Context
+News
+ML Predictions
+Recommendations
+```
+
+------------------------------------------------------------------------
+
+# 🖥️ Launch the Dashboard
+
+Run:
 
 ``` powershell
 streamlit run src\dashboard.py
 ```
 
-The dashboard will open at the local Streamlit address shown in the
-terminal.
+Then open the local Streamlit address shown in the terminal.
 
 ------------------------------------------------------------------------
 
-# 🔄 Typical Workflow
-
-For a fresh analysis:
+# 🔄 Typical User Workflow
 
 ``` text
-1. Start environment
-       ↓
-2. python src/run_ai.py
-       ↓
-3. Market data refresh
-       ↓
-4. Feature generation
-       ↓
-5. News collection
-       ↓
-6. ML prediction
-       ↓
-7. BUY/HOLD/SELL generation
-       ↓
-8. streamlit run src/dashboard.py
-       ↓
-9. Explore rankings and stock analysis
+Activate environment
+        ↓
+Run AI pipeline
+        ↓
+Refresh market data
+        ↓
+Build features
+        ↓
+Collect news
+        ↓
+Generate ML forecasts
+        ↓
+Generate BUY / HOLD / SELL
+        ↓
+Open dashboard
+        ↓
+Review rankings
+        ↓
+Inspect individual stocks
 ```
 
 ------------------------------------------------------------------------
 
-# 📦 Generated Files
+# 📦 Generated Outputs
 
-The production pipeline creates files such as:
+The pipeline generates files such as:
 
 ``` text
 data/processed/
@@ -1093,7 +1194,7 @@ data/processed/
     └── recommendations.json
 ```
 
-The trained model creates:
+Production model artifacts:
 
 ``` text
 data/models/production/
@@ -1102,14 +1203,14 @@ data/models/production/
 └── model_metadata.json
 ```
 
-These generated files are intentionally excluded from the public Git
-repository.
+These are generated runtime artifacts and are intentionally excluded
+from the public repository.
 
 ------------------------------------------------------------------------
 
-# 🔐 Data & Security
+# 🔐 Security
 
-The repository excludes:
+The repository's `.gitignore` excludes:
 
 ``` text
 .env
@@ -1120,44 +1221,35 @@ data/models/
 data/database/
 ```
 
-This prevents:
-
--   API secrets
--   local environments
--   generated datasets
--   trained model artifacts
--   runtime databases
-
-from being accidentally committed.
+This prevents secrets, local environments, generated datasets and model
+artifacts from being accidentally committed.
 
 ------------------------------------------------------------------------
 
 # ⚠️ Limitations
 
-This project is a **research and educational system**, not a guaranteed
-trading system.
+This project is a **research and educational decision-support system**.
 
-### 1. Market prediction is inherently uncertain
+It is not a guaranteed trading system.
 
-Financial markets are noisy and non-stationary.
+### Market uncertainty
 
-Historical relationships can disappear.
+Financial markets are non-stationary and noisy. Historical relationships
+can disappear.
 
-### 2. News data is recent
+### Data freshness
 
-The live news engine is not a historical news database.
+Yahoo Finance data availability and freshness can vary and may not
+represent tick-by-tick exchange data.
 
-Therefore, live news should not be treated as a historical backtest
-feature.
+### News limitation
 
-### 3. Yahoo Finance data freshness can vary
+The news system collects recent news and is not a historical news
+database.
 
-The latest available Yahoo Finance observation may not represent a
-tick-by-tick exchange feed.
+### Prediction uncertainty
 
-### 4. Expected return is not guaranteed return
-
-A model prediction such as:
+A forecast such as:
 
 ``` text
 +5%
@@ -1165,72 +1257,112 @@ A model prediction such as:
 
 does not mean the stock will actually return 5%.
 
-### 5. AI conviction is not probability
+### Conviction limitation
 
-A conviction score represents signal strength.
+A conviction score is not a probability of profit.
 
-It is not a calibrated probability of profit.
+### Backtest limitation
 
-### 6. Backtests are not future performance
+Historical performance does not guarantee future performance.
 
-The historical results shown in the dashboard do not guarantee future
-results.
+### Execution limitation
 
-### 7. The system does not execute real trades
-
-The current project is a decision-support/research platform.
-
-It does not automatically place live orders.
+The current system is a research/decision-support platform and does not
+automatically place live broker orders.
 
 ------------------------------------------------------------------------
 
-# 🧭 Future Improvements
+# 🧭 Future Development
 
-Possible future engineering directions include:
+The architecture can be extended with:
 
--   Expand the stock universe
--   Historical news dataset
--   Fundamental financial statements
--   Earnings-event features
--   Sector-relative features
--   Better probability calibration
--   More advanced ensemble models
--   Transaction-cost modelling
--   Slippage modelling
--   Paper-trading engine
--   Broker API integration
--   Portfolio-level risk allocation
--   Position sizing
--   Stop-loss optimization
--   Real-time data infrastructure
+-   larger Indian stock universe
+-   sector classification
+-   fundamental financial data
+-   earnings and corporate-event features
+-   historical news database
+-   improved probability calibration
+-   transaction-cost modelling
+-   slippage modelling
+-   portfolio position sizing
+-   paper trading
+-   broker API integration
+-   real-time streaming data
 -   FastAPI backend
--   Cloud deployment
--   Authentication
--   Automated model retraining
--   Model monitoring
--   Drift detection
+-   cloud deployment
+-   model monitoring
+-   drift detection
+-   automated retraining
+-   portfolio-level risk management
 
-These are deliberately future improvements rather than claims about the
-current system.
+These are future engineering opportunities rather than capabilities
+claimed by the current version.
 
 ------------------------------------------------------------------------
 
-# 💡 Key Lessons From the Project
+# 🏆 What Makes This Project Different
 
-The biggest lesson was not:
+This project is not simply:
 
-> "Machine learning predicts stocks."
+``` text
+Download stock data
+        ↓
+Train Random Forest
+        ↓
+Print prediction
+```
 
-It was:
+It is an end-to-end research system:
 
-> **Good trading ML requires careful problem formulation, leakage
-> control, walk-forward validation, realistic execution assumptions and
-> honest interpretation of weak predictive signals.**
+``` text
+             DATA
+               ↓
+      FEATURE ENGINEERING
+               ↓
+       MARKET CONTEXT
+               ↓
+      NEWS INTELLIGENCE
+               ↓
+        ML RESEARCH
+               ↓
+      MODEL SELECTION
+               ↓
+    WALK-FORWARD VALIDATION
+               ↓
+       STRATEGY RESEARCH
+               ↓
+      PRODUCTION MODEL
+               ↓
+       LIVE PREDICTIONS
+               ↓
+    RECOMMENDATION ENGINE
+               ↓
+       STREAMLIT APP
+```
 
-Several models looked promising initially but deteriorated when tested
-more rigorously.
+The project also documents cases where models **did not work well**,
+rather than presenting only the most attractive result.
 
-The final architecture therefore prioritizes:
+That is a core part of the research methodology.
+
+------------------------------------------------------------------------
+
+# 📌 Final Takeaway
+
+The objective of Indian Stock Trading AI is not to claim:
+
+> **"AI can predict the stock market."**
+
+The objective is to investigate a more useful question:
+
+> **"Can a systematic machine-learning pipeline extract enough
+> information from Indian market data to produce a useful and testable
+> stock-ranking signal?"**
+
+The project explores that question from raw data collection all the way
+to a production-style dashboard.
+
+The final system prioritizes:
 
 ``` text
 Robustness
@@ -1241,66 +1373,10 @@ Complexity
 and:
 
 ``` text
-Stock Ranking
+Relative Stock Selection
     >
 Exact Return Prediction
 ```
-
-------------------------------------------------------------------------
-
-# 🏆 Project Highlights
-
-### End-to-end
-
-The project covers the complete path:
-
-``` text
-Raw Data
-   ↓
-Feature Engineering
-   ↓
-Machine Learning
-   ↓
-Prediction
-   ↓
-Strategy
-   ↓
-Backtesting
-   ↓
-Recommendation
-   ↓
-Dashboard
-```
-
-### Production-oriented
-
-The system has:
-
--   modular source files
--   reusable pipeline
--   saved model artifacts
--   generated outputs
--   automated refresh
--   interactive dashboard
--   Git version control
--   security-aware `.gitignore`
-
-### Research-oriented
-
-The project did not stop at the first model.
-
-It tested:
-
--   classification
--   regression
--   ensembles
--   multiple horizons
--   ranking
--   walk-forward validation
--   feature ablation
--   realistic execution
--   portfolio construction
--   exit architectures
 
 ------------------------------------------------------------------------
 
@@ -1308,33 +1384,33 @@ It tested:
 
 **Karan Kapadia**
 
-GitHub:
-
+GitHub:\
 https://github.com/KaranKapadia03
 
-Project:
-
+Project Repository:\
 https://github.com/KaranKapadia03/INDIAN-STOCK-TRADING-AI
 
 ------------------------------------------------------------------------
 
-# 📌 Disclaimer
+# ⚖️ Disclaimer
 
 This project is intended for **educational, research and portfolio
-purposes**.
+purposes only**.
 
-It is not financial advice.
+Nothing in this repository should be interpreted as financial advice, a
+recommendation to buy or sell securities, or a guarantee of future
+returns.
 
-The model outputs are statistical estimates and can be wrong. Historical
-backtest performance does not guarantee future performance. Users should
-independently evaluate risk before making any investment decision.
+Model predictions can be wrong. Historical backtests can differ
+materially from future results. Users should independently evaluate
+investment decisions and risk.
 
 ------------------------------------------------------------------------
 
-## ⭐ If you find this project interesting
+## ⭐ Project Status
 
-Consider starring the repository and exploring the research pipeline.
+**Production-style research prototype --- dashboard and core strategy
+architecture frozen for portfolio release.**
 
-**Built to explore one question:**
-
-> ### Can machine learning turn noisy Indian market data into a systematic, testable stock-selection process?
+Future improvements can be developed as new versions rather than
+changing the current research conclusions.
