@@ -4,3 +4,6 @@ requests
 python-dotenv
 yfinance
 scikit-learn
+streamlit
+joblib
+plotly
